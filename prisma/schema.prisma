@@ -1,0 +1,46 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model user {
+  id                 Int                  @id @default(autoincrement())
+  email              String               @unique
+  password           String
+  album              album[]
+  album_with_gallery album_with_gallery[]
+  images_user        images_user[]
+}
+
+model album {
+  id       Int     @id @default(autoincrement())
+  name     String
+  isPublic Boolean
+
+  user               user                 @relation(fields: [user_id], references: [id])
+  user_id            Int
+  album_with_gallery album_with_gallery[]
+}
+
+model images_user {
+  id                 Int                  @id @default(autoincrement())
+  key_img            String
+  isPublic           Boolean
+  album_with_gallery album_with_gallery[]
+  user               user                 @relation(fields: [user_id], references: [id])
+  user_id            Int
+}
+
+model album_with_gallery {
+  id         Int         @id @default(autoincrement())
+  images     images_user @relation(fields: [gallery_id], references: [id])
+  album      album       @relation(fields: [album_id], references: [id])
+  user       user        @relation(fields: [user_id], references: [id])
+  user_id    Int
+  album_id   Int
+  gallery_id Int
+}
