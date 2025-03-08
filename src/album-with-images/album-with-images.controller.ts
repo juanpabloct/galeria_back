@@ -1,34 +1,14 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Param, ParseIntPipe, } from '@nestjs/common';
 import { AlbumWithImagesService } from './album-with-images.service';
-import { CreateAlbumWithImageDto } from './dto/create-album-with-image.dto';
-import { UpdateAlbumWithImageDto } from './dto/update-album-with-image.dto';
 
-@Controller('album-with-images')
+@Controller('/user/:userId/album/:albumId/images')
 export class AlbumWithImagesController {
-  constructor(private readonly albumWithImagesService: AlbumWithImagesService) {}
-
-  @Post()
-  create(@Body() createAlbumWithImageDto: CreateAlbumWithImageDto) {
-    return this.albumWithImagesService.create(createAlbumWithImageDto);
-  }
+  constructor(private readonly albumWithImagesService: AlbumWithImagesService) { }
 
   @Get()
-  findAll() {
-    return this.albumWithImagesService.findAll();
+  findAllImagesWithAlbum(@Param("userId", ParseIntPipe) userId: number, @Param("albumId", ParseIntPipe) albumId: number) {
+    return this.albumWithImagesService.findAll({ userId, albumId });
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.albumWithImagesService.findOne(+id);
-  }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateAlbumWithImageDto: UpdateAlbumWithImageDto) {
-    return this.albumWithImagesService.update(+id, updateAlbumWithImageDto);
-  }
-
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.albumWithImagesService.remove(+id);
-  }
 }

@@ -1,26 +1,54 @@
-import { Injectable } from '@nestjs/common';
-import { CreateAlbumWithImageDto } from './dto/create-album-with-image.dto';
-import { UpdateAlbumWithImageDto } from './dto/update-album-with-image.dto';
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { PrismaService } from 'src/prisma.service';
 
 @Injectable()
 export class AlbumWithImagesService {
-  create(createAlbumWithImageDto: CreateAlbumWithImageDto) {
-    return 'This action adds a new albumWithImage';
+  constructor(readonly prisma: PrismaService) { }
+  async findAll({ albumId, userId }: { albumId: number, userId: number }) {
+    const findAlbum = await this.findAlbum(albumId)
+    const findUser = await this.findUser(userId)
+    const getImagesAlbum = await this.prisma.album_with_gallery.findMany({
+      where: {
+        album_id: albumId, user_id: findUser, images: {
+          id: findAlbum
+        },
+      },
+      select: {
+        images: true
+      }
+    });
+
+    return getImagesAlbum;
   }
 
-  findAll() {
-    return `This action returns all albumWithImages`;
+
+  private async findUser(userId: number) {
+    const findUser = await this.prisma.user.findUnique({
+      where: {
+        id: userId
+      },
+      select: {
+        id: true
+      }
+    })
+    if (findUser) {
+      throw new NotFoundException("Not found user")
+    }
+    return findUser.id
+  }
+  private async findAlbum(albumId: number) {
+    const getAlbum = await this.prisma.album.findUnique({
+      where: {
+        id: albumId
+      },
+      select: {
+        id: true
+      }
+    })
+    if (getAlbum) {
+      throw new NotFoundException("Not found album")
+    }
+    return getAlbum.id
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} albumWithImage`;
-  }
-
-  update(id: number, updateAlbumWithImageDto: UpdateAlbumWithImageDto) {
-    return `This action updates a #${id} albumWithImage`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} albumWithImage`;
-  }
 }
