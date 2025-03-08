@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateImageDto, CreateParamsImage } from './dto/create-image.dto';
 import { UpdateImageDto } from './dto/update-image.dto';
 import { PrismaService } from 'src/prisma.service';
@@ -8,7 +8,10 @@ import { AlbumPaginationDto } from 'src/album/dto/pagination-album.dto';
 export class ImagesService {
   constructor(readonly prisma: PrismaService) { }
   async create(createImage: CreateImageDto, params: CreateParamsImage) {
-    const getAlbum = await this.prisma.album.findUniqueOrThrow({ where: { id: params.album_id, user_id: params.user_id } });
+    const getAlbum = await this.prisma.album.findUnique({ where: { id: params.album_id, user_id: params.user_id } });
+    if (!getAlbum) {
+      throw new NotFoundException('Not found album');
+    }
     const uploadImage = await this.prisma.images_user.create({
       data: {
         key_img: createImage.name_img,
@@ -26,28 +29,37 @@ export class ImagesService {
     return { status: 200, message: "upload image successful" }
   }
 
-  async findAll(userId: number, { limit = 0, page = 10 }: AlbumPaginationDto) {
+  async findAll(userId: number, params: AlbumPaginationDto = { limit: 10, page: 1 }) {
+    const findImageId = await this.prisma.user.findUnique({ where: { id: userId }, })
+    if (!findImageId) {
+      throw new NotFoundException('Not found user');
+    }
     const findImagesUser = await this.prisma.images_user.findMany({
-      where: { user_id: userId, },
-      skip: page, take: limit
+      where: { user_id: +userId, },
+      skip: params.page, take: params.limit
     })
     return findImagesUser
   }
 
   async findOne(idImage: number) {
-    const findImagesUser = await this.prisma.images_user.findUniqueOrThrow({
+    const findImagesUser = await this.prisma.images_user.findUnique({
       where: {
         id: idImage
       }
     })
-    return findImagesUser
 
+    if (!findImagesUser) {
+      throw new NotFoundException('Image not found');
+    }
+    return findImagesUser
   }
 
   async update(idImage: number, updateImage: UpdateImageDto) {
+    const findImage = await this.findImageId(idImage)
+
     const findImagesUser = await this.prisma.images_user.update({
       where: {
-        id: idImage
+        id: findImage.id
       },
       data: {
         key_img: updateImage.name_img,
@@ -58,11 +70,19 @@ export class ImagesService {
   }
 
   async remove(idImage: number) {
+    const findImageId = await this.findImageId(idImage)
     const deleteImagesUser = await this.prisma.images_user.delete({
       where: {
-        id: idImage
+        id: findImageId.id
       }
     })
     return deleteImagesUser
+  }
+  private async findImageId(idImage: number) {
+    const findImage = await this.prisma.images_user.findUnique({ where: { id: idImage }, select: { id: true } })
+    if (!findImage) {
+      throw new NotFoundException("not found image")
+    }
+    return findImage
   }
 }
