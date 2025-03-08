@@ -4,13 +4,13 @@ import { CreateAlbumDto } from './dto/create-album.dto';
 import { UpdateAlbumDto } from './dto/update-album.dto';
 import { AlbumPaginationDto } from './dto/pagination-album.dto';
 
-@Controller('/:user_id/album')
+@Controller('/:userId/album')
 export class AlbumController {
   constructor(private readonly albumService: AlbumService) { }
 
   @Post()
-  async create(@Param() user_id: number, @Body() createAlbumDto: CreateAlbumDto) {
-    return this.albumService.create(createAlbumDto, user_id);
+  async create(@Param("userId") userId: number, @Body() createAlbumDto: CreateAlbumDto) {
+    return this.albumService.create(createAlbumDto, userId);
   }
 
   @Get()
