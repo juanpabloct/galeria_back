@@ -13,25 +13,28 @@ export class AlbumService {
       data: {
         name: createAlbum.name,
         isPublic: createAlbum.isPublic,
-        user_id: findUser
+        user_id: findUser.id
       }
     })
   }
 
-  async findAll(idUser: number, { limit = 0, page = 10 }: AlbumPaginationDto) {
-    const findUser = await this.findUser(idUser)
+  async findAll(idUser: number, { limit = 10, page = 1 }: AlbumPaginationDto) {
+    const findUser = await this.findUser(idUser);
+    console.log(findUser);
 
-    return this.prisma.album.findMany({
+    return await this.prisma.album.findMany({
       where: {
-        user_id: findUser
+        user_id: findUser.id,
       },
-      skip: page, take: limit
+      skip: (page - 1) * limit,
+      take: limit,
     });
   }
 
   async findOne(id: number) {
     const findAlbum = await this.findAlbum(id)
-    return this.prisma.album.findUniqueOrThrow({ where: { id: findAlbum } })
+
+    return this.prisma.album.findUnique({ where: { id: findAlbum } })
   }
 
   async update(id: number, updateAlbumDto: UpdateAlbumDto) {
@@ -62,7 +65,7 @@ export class AlbumService {
     if (!getUser) {
       throw new NotFoundException("Not found user")
     }
-    return getUser.id
+    return getUser
   }
   private async findAlbum(idUser: number) {
     const getAlbum = await this.prisma.album.findUnique({ where: { id: idUser }, omit: { name: true, isPublic: true, user_id: true } });
