@@ -17,36 +17,40 @@ export class ImagesController {
   @Post("/user/:userId/album/:albumId")
   @UseInterceptors(FileInterceptor("file", multerConfig))
   async create(
-    @UploadedFile("file")
+    @UploadedFile()
     file: Express.Multer.File,
     @Body() createImageDto: CreateImageDto,
     @Param("userId", ParseIntPipe) userId: number,
     @Param("albumId", ParseIntPipe) albumId: number
   ) {
+    console.log(file, createImageDto);
+
     if (!file) {
       throw new BadRequestException("No se recibió ningún archivo");
     }
-    return this.imagesService.create(createImageDto, { album_id: albumId, user_id: userId }, file.buffer.buffer as any);
+    return this.imagesService.create(createImageDto, { album_id: albumId, user_id: userId }, { bucket: this.s3, file: file });
   }
 
 
   @Get("/user/:userId")
   findAll(@Param("userId", ParseIntPipe) userId: number, @Query() pagination?: AlbumPaginationDto) {
-    return this.imagesService.findAll(userId, pagination);
+    return this.imagesService.findAll(userId, this.s3, pagination);
   }
 
   @Get('/image/:id')
   findOne(@Param('id', ParseIntPipe) id: string) {
-    return this.imagesService.findOne(+id);
+    return this.imagesService.findOne(+id, this.s3);
   }
 
   @Patch('/image/:id')
-  update(@Param('id', ParseIntPipe) id: number, @Body() updateImageDto: UpdateImageDto) {
-    return this.imagesService.update(+id, updateImageDto);
+  @UseInterceptors(FileInterceptor("file", multerConfig))
+  update(@Param('id', ParseIntPipe) id: number, @Body() updateImageDto: UpdateImageDto, @UploadedFile()
+  file: Express.Multer.File,) {
+    return this.imagesService.update(+id, updateImageDto, { bucket: this.s3, file: file });
   }
 
   @Delete('/image/:id')
-  remove(@Param('id', ParseIntPipe) id: string) {
-    return this.imagesService.remove(+id);
+  remove(@Param('id', ParseIntPipe) id: string,) {
+    return this.imagesService.remove(+id, { bucket: this.s3 });
   }
 }
