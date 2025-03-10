@@ -1,5 +1,5 @@
 
-import * as bcrypt from 'bcrypt';
+import bcrypt from 'bcryptjs';
 
 export const hash = async (password) => {
     const genSalts = await bcrypt.genSalt();
