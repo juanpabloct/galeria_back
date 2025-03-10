@@ -31,8 +31,8 @@ export class LoginService {
     }
     const payload = { username: findUser.email, sub: findUser.id };
     return {
-      access_token: this.jwtService.sign(payload),
-      id: findUser.id
+      accessToken: this.jwtService.sign(payload),
+      userId: findUser.id
     };
   }
 }
