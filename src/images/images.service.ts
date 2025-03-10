@@ -10,7 +10,8 @@ import { replaceAccents } from 'src/utils/replaceAccents';
 export class ImagesService {
   constructor(readonly prisma: PrismaService) { }
   async create(createImage: CreateImageDto, params: CreateParamsImage, { bucket, file }: { bucket: Bucket, file: Express.Multer.File },) {
-    const getAlbum = await this.prisma.album.findUnique({ where: { id: params.album_id, user_id: params.user_id } });
+    const { albumId, userId } = await this.findAlbumAndUser(params)
+    const getAlbum = await this.prisma.album.findUnique({ where: { id: albumId, user_id: userId } });
     const keyName = replaceAccents(file.originalname.replaceAll(" ", "_"))
     const keyFile = `${getAlbum.user_id}/${getAlbum.id}/${keyName.toLowerCase()}`
     const _putImage = await bucket.pubObject({ contentType: file.mimetype, key: keyFile, img: file.buffer });
@@ -29,7 +30,7 @@ export class ImagesService {
     const _ = await this.prisma.album_with_gallery.create({
       data: {
         album_id: getAlbum.id,
-        user_id: params.user_id,
+        user_id: getAlbum.user_id,
         gallery_id: uploadImage.id
       },
     });
@@ -78,7 +79,6 @@ export class ImagesService {
   async update(idImage: number, updateImage: UpdateImageDto, { bucket, file }: { bucket: Bucket, file: Express.Multer.File }) {
     const findImage = await this.findImageId(idImage)
     const _updateImage = await bucket.pubObject({ contentType: file.mimetype, key: findImage.key_img, img: file.buffer });
-
     const findImagesUser = await this.prisma.images_user.update({
       where: {
         id: findImage.id
@@ -107,5 +107,29 @@ export class ImagesService {
       throw new NotFoundException("not found image")
     }
     return findImage
+  }
+  private async findAlbumAndUser({ album_id, user_id }: CreateParamsImage) {
+    const findImage = await this.prisma.album.findUnique({
+      where: { id: album_id }, omit: {
+        name: true,
+        isPublic: true
+      }
+    })
+    const findUser = await this.prisma.user.findUnique({
+      where: { id: user_id }, omit: {
+        email: true,
+        password: true
+      }
+    })
+    if (!findImage) {
+      throw new NotFoundException("not found image")
+    }
+    if (!findUser) {
+      throw new NotFoundException("not found user")
+    }
+    return {
+      userId: findUser.id,
+      albumId: findImage.id
+    }
   }
 }
