@@ -45,7 +45,6 @@ export class ImagesService {
       where: { user_id: +userId, },
       skip: params.page, take: params.limit
     })
-    console.log(findImagesUser);
 
     const generateUrlImages = await Promise.all(findImagesUser.map(async (value) => ({
       id: value.id,
