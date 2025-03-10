@@ -14,7 +14,7 @@ export class AlbumController {
   }
 
   @Get()
-  async findAll(@Param("userId", ParseIntPipe) userId, @Query() pagination: AlbumPaginationDto) {
+  async findAll(@Param("userId", ParseIntPipe) userId, @Query() pagination?: AlbumPaginationDto) {
     return this.albumService.findAll(userId, pagination);
   }
 
