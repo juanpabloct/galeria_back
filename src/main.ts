@@ -12,7 +12,9 @@ async function bootstrap() {
       transform: true,
     }),
   );
-
+  app.enableCors({
+    origin: '*',
+  });
   await app.listen(3000);
 }
 bootstrap();
