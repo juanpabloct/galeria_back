@@ -10,6 +10,8 @@ export class LoginService {
     private readonly jwtService: JwtService) { }
 
   async create(createLoginDto: CreateLoginDto) {
+    console.log(createLoginDto);
+
     const findEmail = await this.findByEmail(createLoginDto.email)
     if (findEmail) {
       throw new BadRequestException("User already exist")

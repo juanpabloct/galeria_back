@@ -1,8 +1,14 @@
+import { Transform } from "class-transformer"
+import { IsBoolean, IsNumber } from "class-validator"
+
 export class CreateImageDto {
-    name_img: string
+    @IsBoolean()
+    @Transform(({ value }) => value === 'true' || value === true)
     isPublic: boolean
 }
 export class CreateParamsImage {
+    @IsNumber()
     user_id: number
+    @IsNumber()
     album_id: number
 }

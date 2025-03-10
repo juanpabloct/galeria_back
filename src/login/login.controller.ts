@@ -10,6 +10,8 @@ export class LoginController {
 
   @Post()
   async login(@Body() user: AccessLoginDto) {
+    console.log(user);
+
     return await this.loginService.login(user)
   }
   @Post("/newUser")

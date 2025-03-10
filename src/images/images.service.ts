@@ -84,7 +84,7 @@ export class ImagesService {
         id: findImage.id
       },
       data: {
-        key_img: updateImage.name_img,
+        key_img: findImage.key_img,
         isPublic: updateImage.isPublic
       }
     })
