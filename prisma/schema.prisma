@@ -17,30 +17,29 @@ model user {
 }
 
 model album {
-  id       Int     @id @default(autoincrement())
-  name     String
-  isPublic Boolean
-
-  user               user                 @relation(fields: [user_id], references: [id])
+  id                 Int                  @id @default(autoincrement())
+  name               String
   user_id            Int
+  isPublic           Boolean
+  user               user                 @relation(fields: [user_id], references: [id])
   album_with_gallery album_with_gallery[]
 }
 
 model images_user {
   id                 Int                  @id @default(autoincrement())
   key_img            String
+  user_id            Int
   isPublic           Boolean
   album_with_gallery album_with_gallery[]
   user               user                 @relation(fields: [user_id], references: [id])
-  user_id            Int
 }
 
 model album_with_gallery {
   id         Int         @id @default(autoincrement())
-  images     images_user @relation(fields: [gallery_id], references: [id])
-  album      album       @relation(fields: [album_id], references: [id])
-  user       user        @relation(fields: [user_id], references: [id])
   user_id    Int
   album_id   Int
   gallery_id Int
+  album      album       @relation(fields: [album_id], references: [id])
+  images     images_user @relation(fields: [gallery_id], references: [id])
+  user       user        @relation(fields: [user_id], references: [id])
 }
