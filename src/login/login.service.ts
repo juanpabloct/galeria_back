@@ -26,7 +26,7 @@ export class LoginService {
 
   async login(user: AccessLoginDto) {
     let findUser = await this.findByEmail(user.email);
-    if (findUser) {
+    if (!findUser) {
       throw new NotFoundException("Not found user")
     }
     const payload = { username: findUser.email, sub: findUser.id };
