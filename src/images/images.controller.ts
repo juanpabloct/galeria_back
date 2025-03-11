@@ -23,8 +23,6 @@ export class ImagesController {
     @Param("userId", ParseIntPipe) userId: number,
     @Param("albumId", ParseIntPipe) albumId: number
   ) {
-    console.log(file, createImageDto);
-
     if (!file) {
       throw new BadRequestException("No se recibió ningún archivo");
     }

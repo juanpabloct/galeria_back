@@ -16,7 +16,6 @@ export class ImagesService {
     const keyFile = `${getAlbum.user_id}/${getAlbum.id}/${keyName.toLowerCase()}`
     const _putImage = await bucket.pubObject({ contentType: file.mimetype, key: keyFile, img: file.buffer });
     if (!getAlbum) {
-
       throw new NotFoundException('Not found album');
     }
 
@@ -34,7 +33,7 @@ export class ImagesService {
         gallery_id: uploadImage.id
       },
     });
-    return { status: 200, message: "upload image successful" }
+    return await this.findOne(uploadImage.id, bucket)
   }
 
   async findAll(userId: number, bucket: Bucket, params: AlbumPaginationDto = { limit: 10, page: 1 }) {
