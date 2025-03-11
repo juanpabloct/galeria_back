@@ -37,7 +37,11 @@ export class Bucket {
         })
     }
     async getSignedImageUrl(key: string) {
-        const s3 = new S3Client({ region: constants.regionAws });
+        const s3 = new S3Client({
+            region: constants.regionAws, credentials: {
+                accessKeyId: constants.bucketAccessKey, secretAccessKey: constants.bucketSecretKey
+            }
+        });
 
         const command = new GetObjectCommand({
             Bucket: constants.bucketName,
