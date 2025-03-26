@@ -21,7 +21,7 @@ model album {
   name               String
   user_id            Int
   isPublic           Boolean
-  user               user                 @relation(fields: [user_id], references: [id])
+  user               user                 @relation(fields: [user_id], references: [id], onDelete: Cascade)
   album_with_gallery album_with_gallery[]
 }
 
@@ -31,7 +31,7 @@ model images_user {
   user_id            Int
   isPublic           Boolean
   album_with_gallery album_with_gallery[]
-  user               user                 @relation(fields: [user_id], references: [id])
+  user               user                 @relation(fields: [user_id], references: [id], onDelete: Cascade)
 }
 
 model album_with_gallery {

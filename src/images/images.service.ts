@@ -93,9 +93,21 @@ export class ImagesService {
   async remove(idImage: number, { bucket }: { bucket: Bucket }) {
     const findImageId = await this.findImageId(idImage)
     await bucket.deleteObject({ key: findImageId.key_img })
+    let findAlbumImage = await this.prisma.album_with_gallery.findFirst({
+      where: {
+        gallery_id: findImageId.id
+      }
+    })
+    await this.prisma.album_with_gallery.delete({
+      where: {
+        id: await findAlbumImage.id
+      }
+    })
     const deleteImagesUser = await this.prisma.images_user.delete({
       where: {
         id: findImageId.id
+      }, include: {
+        album_with_gallery: true
       }
     })
     return deleteImagesUser
