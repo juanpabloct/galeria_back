@@ -9,9 +9,7 @@ export class AlbumWithImagesService {
     const findUser = await this.findUser(userId)
     const getImagesAlbum = await this.prisma.album_with_gallery.findMany({
       where: {
-        album_id: albumId, user_id: findUser, images: {
-          id: findAlbum
-        },
+        album_id: findAlbum, user_id: findUser,
       },
       select: {
         images: true
@@ -31,7 +29,7 @@ export class AlbumWithImagesService {
         id: true
       }
     })
-    if (findUser) {
+    if (!findUser) {
       throw new NotFoundException("Not found user")
     }
     return findUser.id
@@ -45,7 +43,7 @@ export class AlbumWithImagesService {
         id: true
       }
     })
-    if (getAlbum) {
+    if (!getAlbum) {
       throw new NotFoundException("Not found album")
     }
     return getAlbum.id
